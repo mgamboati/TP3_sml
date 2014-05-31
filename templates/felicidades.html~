@@ -10,6 +10,15 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 
         <script src="{{ url_for('static', filename='modernizr-2.6.2-respond-1.1.0.min.js') }}"></script>
+
+	<style>
+	.tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #729ea5;border-collapse: collapse;}
+	.tftable th {font-size:14px;background-color:#acc8cc;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;text-align:center;}
+	.tftable tr {background-color:#ffffff;}
+	.tftable td {font-size:13px;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;}
+	.tftable tr:hover {background-color:#ffff99;}
+
+	</style>
     </head>
     <body>
 
@@ -25,7 +34,12 @@
         </div>
 	<center>
 		<p>Ambiente Dinamico</p>
-		<table>
+		<table class="tftable" border="1" style="width:300px">
+		<tr>
+		  <th>Nombre de la Variable</th>
+		  <th>Valor</th>
+		</tr>
+
 		{% for t in dinamico %}
 		    <tr>
 		    {% for i in t %}
@@ -33,20 +47,27 @@
 		    {% endfor %}
 		    </tr>
 		{% endfor %}
-		 </table>
+
+		</table>
 	</center>
 
 	<center>
 		<p>Ambiente Estatico</p>
-		<table>
-		{% for t in Estatico %}
+		<table class="tftable" border="1" style="width:300px">
+		<tr>
+		  <th>Nombre de la Variable</th>
+		  <th>Tipo de Dato</th>
+		</tr>
+
+		{% for t in estatico %}
 		    <tr>
 		    {% for i in t %}
 			<td>{{ i }}</td>
 		    {% endfor %}
 		    </tr>
 		{% endfor %}
-		 </table>
+
+		</table>
 	</center>
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
