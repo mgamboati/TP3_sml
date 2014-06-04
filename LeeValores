@@ -1,59 +1,148 @@
+##lista=[["x",3,"int"],["z",5,"int"],["y",'false',"bool"]]
+import re
+global lista
+lista=[]
+
 def leersml():
     archi=open('Archivo.sml','r+')
     linea=archi.readline()
 ##     analizador(linea)
+##    dividirNueva(linea)
     while linea!="":
-        analizador(linea)
+##        analizador(linea)
+        dividirNueva(linea)
         linea=archi.readline()        
     archi.close()
+    print(lista)
+    return agrupar(lista,1,[],[]) 
+##    print("AGRUPADA",agrupada)
+##    return agrupada
 
-
+def dividirNueva(linea):
+    temp=re.split(' |;|\n|(=)*',linea)   #|(-)*|(+)*|(*)*|(<)*|(>)*
+    try:
+        while True:
+            temp.remove(None)
+    except ValueError:
+            pass
+    try:
+        while True:
+            temp.remove("\n")
+    except ValueError:
+        pass
+    contador=temp.count('')
+    while contador !=0:
+        temp.remove('')
+        contador -=1
+    lista.append(temp)
+##    print(lista)
         
         
-def analizador(linea):
-    line=linea.split(' ')
-    return encontrarValor(line,'')
+##def analizador(listasml,var_temp):
+##    listaNueva=[]
+##    var_temp=''
+##    if listasml==[]:
+##        return 
+##    elif listasml[0][0]=='if':    
+##        return AnalizaIf(listasml,var_temp)
+##    elif listasml[0][0]=='let':
+##        return AnalizaLet(listasml)                    
+####    elif line[0]=='\n' or line[0]==';':
+####        return listaNueva
+##    elif listasml[0]==' ':
+##        return analizador(line[1:],var_temp)
+##    elif listasml[0][0]=='val' or line[0][0].isalpha():
+##        return analizaVal([listasml[0][1:]]+[listasml[1:],'')
+##    else:
+##        return 'error'
 
-def encontrarValor(line,var_temp):   ##Funcion que devuelve: variable, valor y tipo.
-    listaNueva=[]
-    var_temp=''
-    if line==[]:
-        return 
-    elif line[0]=='if':    
-        return AnalizaIf(line)
-    elif line[0]=='let':
-        return AnalizaLet(line)                    
-##    elif line[0]=='\n' or line[0]==';':
-##        return listaNueva
-    elif line[0]==' ':
-        return encontrarValor(line[1:],var_temp)
-    elif line[0]=='val':
-        return analizaVal(line[1:],'')
-    else:
-        return 'error'
+
+def agrupar(matriz,ide,valActual,agrupada2):
+    print(matriz)
+    while matriz!=[]:
+        agrupada=[]
+        if ide==1: #val
+            vector=matriz[0]
+            if vector!=[] and vector[0]=='val':
+                valActual += [vector[0]]
+                vector=vector[1:]
+                matriz[0]=matriz[0][1:]
+
+            while vector!=[] and vector[0] not in {'val','let','if'}: ## vector[0]!='val' or vector[0]!='let' or vector[0]!='if': ##
+                valActual += [vector[0]]                
+                vector=vector[1:]
+                matriz[0]=matriz[0][1:]
+##                print("Vector:  ",vector)
+            print("valActual:  ",valActual)
+            if vector == [] and len(matriz)>=2 and len(matriz[1])>= 1 and matriz[1][0] in {'val','let','if'}:
+                agrupada+=[valActual]
+                if matriz[1][0]=='val':
+##                    print("deberia entrar aqui")
+                    matriz = matriz[1:]
+##                    print("matriz: ",matriz)
+                    return agrupar(matriz,1,[],agrupada2+agrupada)
+                elif matriz[1][0]=='let':
+                    matriz = matriz[1:]
+                    agrupada +=[agrupar(matriz,2,[])]
+                elif matriz[1][0]=='if':
+                    matriz = matriz[1:]
+                    agrupada +=[agrupar(matriz,3,[])]
+                    
+            elif vector == [] and len(matriz)>=2 and matriz[1][0] not in {'val','let','if'}:
+                matriz=matriz[1:]
+                return agrupar(matriz,1,valActual,agrupada2+agrupada)
+                
+            elif vector != [] and vector[0] in {'val','let','if'}:
+                agrupada+=[valActual]
+                if vector[0]=='val':
+                    return agrupar(matriz,1,[],agrupada2+[agrupada]) 
+                elif vector[0]=='let':
+                    agrupada +=[agrupar(matriz,2,[])]
+                elif vector[0]=='if':
+                    agrupada +=[agrupar(matriz,3,[])]
+            elif len(matriz)==1 and matriz[0]==[]:
+                matriz=matriz[1:]
+                agrupada2+=[valActual]
+                return agrupada2
+                            
+        elif ide==2: #let
+            print ("el 2")
+        elif ide==3: #if
+            print ("el 2")
+    return agrupada2
+
+    
 
 def analizaVal(line,variable):
     if len(line[0])>1:
-        print('hola',line[0][0])
         if line[0].isdigit():                                           
             agregardatos(lista,var_temp,int(line[0]),'int')
-            analizaVal(line[1:],var_temp)
+            return analizaVal(line[1:],var_temp)
         elif line[0][0].isalpha():
             if line[0][0]=='true' or line[0][0]=='false':
-                return agregardatos(lista,var_temp,line[0],'bool')
+                agregardatos(lista,var_temp,line[0],'bool')
+                var_temp=''
+                encontrarValor(line[1:],var_temp)
             else:                    
-##                return analizaVal([line[0][1:]]+line[1:],line[0][0])
                 if line[0].find('='):
                     return analizaVal([line[0][line[0].find('='):]]+[line[1:]],line[0][:line[0].find('=')])
-##                else:
-##                    return analizaVal()
+                else:
+                    linear=line[0][0]
+                    while linear.isalpha():
+                        var_temp=var_temp+linear
+                        linear=line[0][1:]
+                    print(linear)
+                    return analizaVal(line,var_temp)
                 
-        elif line[0].find('='):
-            if line[1].isdigit():
-                agregardatos(lista,var_temp,line[1],'int')
-                analizaVal(line[2:],var_temp)
-            elif line[0].find('+') or line[0].find('/') or line[0].find('*') or line[0].find('-'):
-                return 'Falta trabajar valores de operaciones.'
+        elif line[0][0]=='=':
+            if line[0][1].isdigit():
+                agregardatos(lista,variable,line[0][1],'int')
+                variable=''
+                encontrarValor(line[2:],variable)
+##            elif line[0].find('+') or line[0].find('/') or line[0].find('*') or line[0].find('-') or line[0].find('div') or line[0].find('mod'):
+##                while lista[0]!='' or lista[0]!=';':
+##                    if lista[0][0].isalpha():
+                        
 ##                elif line[1]=='[':
 ##                    AnalizaLista(line[1:])
 ##                elif line[1]=='(':
@@ -168,4 +257,3 @@ def obtener(valor):
      for e in lista:
           if (e[0]==valor):
                return (e[1])
-
